@@ -19,8 +19,6 @@ interface Product {
 const MockProducts: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  const [sortBy, setSortBy] = useState<any>('price');
-  const [sortOrder, setSortOrder] = useState<string>('asc');
   const [pinnedProducts, setPinnedProducts] = useState<{ [key: string]: boolean }>({});
   const [positionInput, setPositionInput] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -44,7 +42,8 @@ const MockProducts: React.FC = () => {
     setPositionInput(value);
   };
   useEffect(() => {
-    fetchProducts();
+    fetchProductsASC();
+    resetProductsPin();
   }, []);
 
   const fetchProducts = async () => {
@@ -56,7 +55,34 @@ const MockProducts: React.FC = () => {
       message.error('Error fetching products');
     }
   };
-
+  const fetchProductsASC = async () => {
+    try {
+      const response = await axios.get('http://localhost:3001/products/asc');
+      setProducts(response.data);
+      setLoading(false);
+    } catch (error) {
+      message.error('Error fetching products');
+    }
+  };
+  const fetchProductsDESC = async () => {
+    try {
+      const response = await axios.get('http://localhost:3001/products/desc');
+      setProducts(response.data);
+      setLoading(false);
+    } catch (error) {
+      message.error('Error fetching products');
+    }
+  };
+  const resetProductsPin = async () => {
+    try {
+      await axios.post('http://localhost:3001/products/unpin');
+      setPinnedProducts({})
+      fetchProductsASC();
+      setLoading(false);
+    } catch (error) {
+      message.error('Error fetching products');
+    }
+  };
   const handlePinProduct = async (id: number) => {
     try {
       if (positionInput === null) {
@@ -68,7 +94,7 @@ const MockProducts: React.FC = () => {
       }
       const response = await axios.post(`http://localhost:3001/products/pin/${id}/${position}`);
       if (response) {
-        fetchProducts();
+        fetchProductsASC();
         setPinnedProducts(prevState => ({
           ...prevState,
           [id]: position
@@ -81,24 +107,17 @@ const MockProducts: React.FC = () => {
     }
   };
   
-
-  const sortedProducts = [...products].sort((a: Product, b: Product) => {
-    if (a.position !== undefined && b.position !== undefined) {
-      return a.position - b.position; // Pinlenmiş ürünlerin pozisyonlarını korur
-    } else {
-      return a.price - b.price; // Diğer ürünleri fiyata göre sıralar
-    }
-  });
   
   return (
     <div style={{ padding: '20px' }}>
       <Space direction="vertical" style={{ width: '100%' }}>
         <Space>
-          <Button onClick={() => { setSortBy('price'); setSortOrder('asc'); }}>Sort by Price Asc</Button>
-          <Button onClick={() => { setSortBy('price'); setSortOrder('desc'); }}>Sort by Price Desc</Button>
+          <Button onClick={() => fetchProductsASC()}>Sort by Price Asc</Button>
+          <Button onClick={() => fetchProductsDESC()}>Sort by Price Desc</Button>
+          <Button onClick={()=>resetProductsPin()}>Reset</Button>
         </Space>
         <Row gutter={[16, 16]} style={{ marginTop: '20px' }}>
-          {sortedProducts.map((product) => (
+          {products.map((product) => (
             <Col key={product.id} xs={24} sm={12} md={8} lg={6} xl={4}>
               <Card
                 cover={<img alt="example" src="https://upload.wikimedia.org/wikipedia/commons/f/f9/Phoenicopterus_ruber_in_S%C3%A3o_Paulo_Zoo.jpg" height={120}/>}
