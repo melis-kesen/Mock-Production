@@ -41,10 +41,7 @@ Please make sure to update tests as appropriate.
 
 ## Stay in touch
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+- Author - [Melis Keşen](https://www.linkedin.com/in/meliskesen/)
+- Website - [https://melis-kesen.github.io/Portfolio/](https://melis-kesen.github.io/Portfolio/)
 
 ## License
-
-Nest is [MIT licensed](LICENSE).
