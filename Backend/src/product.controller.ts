@@ -1,4 +1,3 @@
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import {
   Controller,
   Get,
@@ -6,6 +5,7 @@ import {
   Param,
   NotFoundException,
   BadRequestException,
+  Body,
 } from '@nestjs/common';
 import { ProductService } from './product.service';
 
@@ -21,7 +21,7 @@ export class ProductController {
   async getAllProductsDESC() {
     return this.productService.getAllProducts('price', 'DESC');
   }
-  @Post('pin/:id/:position') // POST /products/pin/:productId/:position
+  @Post('pin/:id/:position')
   async pinProduct(
     @Param('id') id: number,
     @Param('position') position: number,
@@ -36,8 +36,16 @@ export class ProductController {
     }
     return pinnedProduct; // Pinlenmiş ürün başarıyla döndürülür
   }
-  @Post('unpin') // POST /products/pin/:productId/:position
+  @Post('unpin')
   async unpinProducts() {
     return this.productService.unpinProducts(); // ProductService'deki pinProduct metodu çağrılır
+  }
+  @Post()
+  async generateProduct(@Body() productData: any) {
+    try {
+      return await this.productService.generateProduct(productData);
+    } catch (error) {
+      throw error;
+    }
   }
 }

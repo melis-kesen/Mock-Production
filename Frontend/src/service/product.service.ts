@@ -1,5 +1,7 @@
 import axios from "axios";
+import { ProductData }  from "../components/Form"
 const API = `http://localhost:3001/products`
+
 const ProductService = {
   async getProductsAsc() {
     try {
@@ -31,6 +33,15 @@ const ProductService = {
   async pinProducts(id: number, position: number) {
     try {
         const response = await axios.post(API + "/pin/" + id + "/"+ position);
+        return response.data;
+      } catch (error) {
+        console.error('Error fetching products:', error);
+        throw error;
+      }
+  },
+  async generateProduct(obj: ProductData) {
+    try {
+        const response = await axios.post(API , obj);
         return response.data;
       } catch (error) {
         console.error('Error fetching products:', error);

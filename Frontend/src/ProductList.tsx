@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Button, Space, message, Row, Col ,Modal, Spin} from 'antd';
+import { Card, Button, Space, message, Row, Col ,Modal, Spin, Result} from 'antd';
 import { PushpinOutlined } from '@ant-design/icons';
 import { InputNumber } from 'antd';
 import 'antd/dist/reset.css';
 import {productImage} from "./productImage"
+import FormComponent,  { ProductData }  from "./components/Form"
 //services
 import ProductService from "./service/product.service"
 const { Meta } = Card;
@@ -22,12 +23,13 @@ const MockProducts: React.FC = () => {
   const [pinnedProducts, setPinnedProducts] = useState<{ [key: string]: boolean }>({});
   const [positionInput, setPositionInput] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isFormOpen, setIsFormOpen] = useState(false);
   const [selectedProductId, setSelectedProductId] = useState<any>(null);
   const [spinning, setSpinning] = React.useState<boolean>(true);
 
   useEffect(() => {
     fetchProductsASC();
-    setPinnedProducts({})
+    resetProductsPin();
   }, []);
 
   const fetchProductsASC = async () => {
@@ -51,13 +53,11 @@ const MockProducts: React.FC = () => {
     }
   };
   const resetProductsPin = async () => {
-    setSpinning(true);
     try {
       const response = await ProductService.resetProductsPin();
       if (response) {
         setPinnedProducts({})
         fetchProductsASC();
-        setSpinning(false);
       }
       
     } catch (error) {
@@ -73,47 +73,68 @@ const MockProducts: React.FC = () => {
       if (isNaN(position) || position < 1) {
         throw new Error('Invalid position');
       }
-      const response = await ProductService.pinProducts(id, position)
+      const response = await ProductService.pinProducts(id, position-1)
       if (response) {
         fetchProductsASC();
         setPinnedProducts(prevState => ({
           ...prevState,
           [id]: position
         }));
-        handleOk();
+        setPositionInput(null)
+        setIsModalOpen(false);
       }
       message.success('Product pinned successfully');
     } catch (error:any) {
       message.error(error.message || 'An error occurred while pinning the product');
     }
   };
+  const handleGenerateProduct = async (formData: ProductData ) => {
+    setIsFormOpen(true)
+    try {
+      const generatedProduct = await ProductService.generateProduct(formData);
+      if (generatedProduct) {
+         fetchProductsASC();
+         setIsFormOpen(false)
+      }
+  } catch (error:any) {
+    message.error(error.response.data.message || 'An error occurred while pinning the product');
+  }
+  }
   const showModal = (productId: any) => {
-    setIsModalOpen(true);
+    setIsModalOpen(true); 
     setSelectedProductId(productId)
   };
-
-  const handleOk = () => {
-    setIsModalOpen(false);
+  const showForm = () => {
+    setIsFormOpen(true)
+  };
+  const handleOk = (selectedProductId: number) => {
+    handlePinProduct(selectedProductId)
   };
 
   const handleCancel = () => {
     setPositionInput(null)
     setIsModalOpen(false);
-
+  };
+  const handleCancelForm = () => {
+    setIsFormOpen(false)
   };
   const onChange = (value: any) => {
     setPositionInput(value);
   };
-  
+
   return (
     <div>
         <Spin spinning={spinning} size="large" fullscreen/>
       <Space direction="vertical" style={{ width: '100%' }}>
         <Space>
+          <Button onClick={() => showForm()}>Generate Product</Button>
           <Button onClick={() => fetchProductsASC()}>Sort by Price Asc</Button>
           <Button onClick={() => fetchProductsDESC()}>Sort by Price Desc</Button>
           <Button onClick={()=>resetProductsPin()}>Reset</Button>
         </Space>
+        {(products === null || products.length === 0) && ( <Result
+    title="There is no products to show." status="warning"
+  />)}
         {products && ( 
         <Row gutter={[16, 16]} style={{ marginTop: '20px' }}>
           {products.map((product) => (
@@ -136,12 +157,15 @@ const MockProducts: React.FC = () => {
             </Col>
           ))}
         </Row>)}
-       
-        <Modal title="Pin Position" open={isModalOpen} onOk={() =>handlePinProduct(selectedProductId)} onCancel={handleCancel} centered={true} width={300}>
+        <Modal title="Pin Product" open={isModalOpen} onOk={() =>handleOk(selectedProductId)} onCancel={handleCancel} centered={true} width={300}>
         <InputNumber  min={1} max={products.length} placeholder="Please enter a position" value={positionInput} onChange={onChange}  style={{ width: 200 }}/>
       </Modal>
       </Space>
-     
+      <Modal title="Generate Product" open={isFormOpen} centered={true} footer={[
+          <Button key="cancel" onClick={handleCancelForm}>
+            Cancel
+          </Button>,
+        ]} ><FormComponent onSubmit={handleGenerateProduct}></FormComponent></Modal>
     </div>
   );
 };

@@ -19,7 +19,7 @@ export class Product {
   @Column()
   stockLevels: number;
 
-  @Column()
+  @Column({ nullable: true })
   position: number;
 
   @Column()

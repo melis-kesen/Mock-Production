@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, ConflictException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Product } from './entities/product.entity';
@@ -9,7 +9,6 @@ export class ProductService {
     @InjectRepository(Product)
     private readonly productRepository: Repository<Product>,
   ) {}
-  //TODO: Unpinned ekle, sayfa yenilendiğinde eski haline dönsün
   async getAllProducts(
     orderBy: string = 'price',
     orderDirection: 'ASC' | 'DESC' = 'ASC',
@@ -28,8 +27,7 @@ export class ProductService {
         IsPinned: true, // IsPinned değeri true olanları getir
       },
     });
-    //const pinnedIndex = products?.findIndex((item) => item.IsPinned);
-    //console.log(pinnedIndex);
+
     const pinnedPositions = products
       .filter((obj) => obj.IsPinned === true)
       .map((obj) => obj.position);
@@ -42,17 +40,13 @@ export class ProductService {
         productsNotPinned.splice(pinnedIndex, 0, pinnedProduct);
       }
     });
-    //console.log(pinnedIndexes);
-    /*if (pinnedIndex !== -1) {
-      productsNotPinned.splice(pinnedIndex, 0, productsPinned[0]);
-    }*/
+
     for (let index = 0; index < productsNotPinned.length; index++) {
       const product = productsNotPinned[index];
       await this.productRepository.update(
         { id: product.id },
         { position: index },
       );
-      console.log(`Product ${product.id} güncellendi.`);
     }
     return productsNotPinned;
   }
@@ -71,7 +65,6 @@ export class ProductService {
     product.position = position; // Ürünün pozisyonunu güncelle
     product.IsPinned = true; // Ürünün pozisyonunu güncelle
     await this.productRepository.save(product); // Ürünü veritabanına kaydet
-    console.log(`Product ${product.id} güncellendi.`);
     return product; // Güncellenmiş ürünü döndür
   }
 
@@ -82,5 +75,23 @@ export class ProductService {
       { IsPinned: false },
     );
     return true;
+  }
+
+  async generateProduct(productData: any) {
+    try {
+      const existingProduct = await this.productRepository.findOne({
+        where: { SKU: productData.SKU },
+      });
+      if (existingProduct) {
+        throw new ConflictException('SKU must be unique');
+      }
+
+      const newProductData = { ...productData, IsPinned: false };
+
+      const newProduct = this.productRepository.create(newProductData);
+      return this.productRepository.save(newProduct);
+    } catch (error) {
+      throw error;
+    }
   }
 }
