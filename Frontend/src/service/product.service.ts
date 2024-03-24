@@ -1,6 +1,6 @@
 import axios from "axios";
 import { ProductData }  from "../components/Form"
-const API = `http://localhost:3001/products`
+const API = `http://localhost:8080/products`
 
 const ProductService = {
   async getProductsAsc() {

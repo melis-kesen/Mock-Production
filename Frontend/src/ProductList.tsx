@@ -31,7 +31,7 @@ const MockProducts: React.FC = () => {
     fetchProductsASC();
     resetProductsPin();
   }, []);
-
+  // get products in asc order
   const fetchProductsASC = async () => {
     setSpinning(true);
     try {
@@ -42,6 +42,7 @@ const MockProducts: React.FC = () => {
       message.error('Error fetching products');
     }
   };
+   // get products in desc order
   const fetchProductsDESC = async () => {
     setSpinning(true);
     try {
@@ -52,6 +53,7 @@ const MockProducts: React.FC = () => {
       message.error('Error fetching products');
     }
   };
+  // reset pinned products
   const resetProductsPin = async () => {
     try {
       const response = await ProductService.resetProductsPin();
@@ -64,6 +66,7 @@ const MockProducts: React.FC = () => {
       message.error('Error fetching products');
     }
   };
+  // pin selected product in selected position
   const handlePinProduct = async (id: number) => {
     try {
       if (positionInput === null) {
@@ -88,6 +91,7 @@ const MockProducts: React.FC = () => {
       message.error(error.message || 'An error occurred while pinning the product');
     }
   };
+  // generate product
   const handleGenerateProduct = async (formData: ProductData ) => {
     setIsFormOpen(true)
     try {
@@ -100,21 +104,25 @@ const MockProducts: React.FC = () => {
     message.error(error.response.data.message || 'An error occurred while pinning the product');
   }
   }
+  //open pin product modal
   const showModal = (productId: any) => {
     setIsModalOpen(true); 
     setSelectedProductId(productId)
   };
+  //open generate product form
   const showForm = () => {
     setIsFormOpen(true)
   };
+  //click Ok button in pin product modal
   const handleOk = (selectedProductId: number) => {
     handlePinProduct(selectedProductId)
   };
-
+  //click cancel button in pin product modal
   const handleCancel = () => {
     setPositionInput(null)
     setIsModalOpen(false);
   };
+  //click cancel button in generate product form
   const handleCancelForm = () => {
     setIsFormOpen(false)
   };
@@ -140,7 +148,7 @@ const MockProducts: React.FC = () => {
           {products.map((product) => (
             <Col key={product.id} xs={24} sm={12} md={8} lg={6} xl={4}>
               <Card
-                cover={<img key={productImage[product.id-1]?.id} alt={productImage[product.id-1]?.alt} src={productImage[product.id-1]?.image} height={160}/>}
+               cover={<img key={productImage[product.id-1]?.id} alt={productImage[product.id-1]?.alt} src={productImage[product.id-1]?.image} height={160}/>}
                 hoverable
                 style={{ marginBottom: '10px'}}
                 actions={[
