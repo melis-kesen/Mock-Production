@@ -41,6 +41,9 @@ docker-compose up --build
 
 Application that includes a backend server, a frontend interface, and utilizes a PostgreSQL database. The application will manage a catalog of mock products, allowing users to sort, pin, and view these products.
 
+## Application
+![](./gif.gif)
+
 ## Installation
 
 Use the package manager [npm](https://www.npmjs.com) to install node modules.
