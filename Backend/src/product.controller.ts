@@ -27,7 +27,7 @@ export class ProductController {
     @Param('position') position: number,
   ) {
     // productId ve position değerlerini alarak pinProduct metodu çağrılır
-    if (isNaN(position) || position < 1) {
+    if (isNaN(position) || position < 0) {
       throw new BadRequestException('Invalid position'); // Pozisyon değeri hatalıysa istemciye bir hata döndürülür
     }
     const pinnedProduct = await this.productService.pinProduct(id, position); // ProductService'deki pinProduct metodu çağrılır

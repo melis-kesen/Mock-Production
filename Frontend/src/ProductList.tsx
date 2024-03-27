@@ -73,10 +73,10 @@ const MockProducts: React.FC = () => {
         throw new Error('Pin operation cancelled');
       }
       const position: number = parseInt(positionInput, 10);
-      if (isNaN(position) || position < 1) {
+      if (isNaN(position) || position < 0) {
         throw new Error('Invalid position');
       }
-      const response = await ProductService.pinProducts(id, position-1)
+      const response = await ProductService.pinProducts(id, position)
       if (response) {
         fetchProductsASC();
         setPinnedProducts(prevState => ({
@@ -152,7 +152,7 @@ const MockProducts: React.FC = () => {
                 hoverable
                 style={{ marginBottom: '10px'}}
                 actions={[
-                  <Button type="primary" onClick={() => showModal(product.id)} style={{ backgroundColor: pinnedProducts[product.id.toString()] ? '#6ab6cf' : '#b9b4b4' }}>
+                  <Button type="primary" onClick={() => showModal(product.id)} /*style={{ backgroundColor: pinnedProducts[product.id.toString()] ? '#6ab6cf' : '#b9b4b4' }}*/>
                     <PushpinOutlined  />
                   </Button>
                 ]}
@@ -166,7 +166,7 @@ const MockProducts: React.FC = () => {
           ))}
         </Row>)}
         <Modal title="Pin Product" open={isModalOpen} onOk={() =>handleOk(selectedProductId)} onCancel={handleCancel} centered={true} width={300}>
-        <InputNumber  min={1} max={products.length} placeholder="Please enter a position" value={positionInput} onChange={onChange}  style={{ width: 200 }}/>
+        <InputNumber  min={0} max={products.length} placeholder="Please enter a position" value={positionInput} onChange={onChange}  style={{ width: 200 }}/>
       </Modal>
       </Space>
       <Modal title="Generate Product" open={isFormOpen} centered={true} footer={[
